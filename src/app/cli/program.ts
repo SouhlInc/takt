@@ -52,6 +52,7 @@ program
   .option('-t, --task <string>', 'Task content (as alternative to GitHub issue)')
   .option('--pipeline', 'Pipeline mode: non-interactive, no worktree, direct branch creation')
   .option('--skip-git', 'Skip branch creation, commit, and push (pipeline mode)')
+  .option('--skip-checkout', 'Skip branch creation but still commit and push (use current branch)')
   .option('-q, --quiet', 'Minimal output mode: suppress AI output (for CI)')
   .option('-c, --continue', 'Continue from the last assistant session');
 
