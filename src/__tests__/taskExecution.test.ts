@@ -5,7 +5,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TaskInfo } from '../infra/task/index.js';
 
-const { mockResolveTaskExecution, mockExecutePiece, mockLoadPieceByIdentifier, mockResolvePieceConfigValues, mockResolveConfigValueWithSource, mockBuildTaskResult, mockPersistTaskResult, mockPersistTaskError, mockPostExecutionFlow } =
+const { mockResolveTaskExecution, mockExecutePiece, mockLoadPieceByIdentifier, mockResolvePieceConfigValues, mockResolveConfigValueWithSource, mockBuildTaskResult, mockPersistTaskResult, mockPersistPrFailedTaskResult, mockPersistTaskError, mockPostExecutionFlow } =
   vi.hoisted(() => ({
     mockResolveTaskExecution: vi.fn(),
     mockExecutePiece: vi.fn(),
@@ -14,6 +14,7 @@ const { mockResolveTaskExecution, mockExecutePiece, mockLoadPieceByIdentifier, m
     mockResolveConfigValueWithSource: vi.fn(),
     mockBuildTaskResult: vi.fn(),
     mockPersistTaskResult: vi.fn(),
+    mockPersistPrFailedTaskResult: vi.fn(),
     mockPersistTaskError: vi.fn(),
     mockPostExecutionFlow: vi.fn(),
   }));
@@ -30,6 +31,7 @@ vi.mock('../features/tasks/execute/pieceExecution.js', () => ({
 vi.mock('../features/tasks/execute/taskResultHandler.js', () => ({
   buildTaskResult: (...args: unknown[]) => mockBuildTaskResult(...args),
   persistTaskResult: (...args: unknown[]) => mockPersistTaskResult(...args),
+  persistPrFailedTaskResult: (...args: unknown[]) => mockPersistPrFailedTaskResult(...args),
   persistTaskError: (...args: unknown[]) => mockPersistTaskError(...args),
 }));
 
@@ -199,7 +201,7 @@ describe('executeAndCompleteTask', () => {
     expect(pieceExecutionOptions?.model).toBe('gpt-5.3-codex');
   });
 
-  it('should mark task as failed when PR creation fails', async () => {
+  it('should mark task as pr_failed when PR creation fails', async () => {
     // Given: worktree mode with autoPr enabled, PR creation fails
     const task = createTask('task-with-pr-failure');
     mockResolveTaskExecution.mockResolvedValue({
@@ -223,16 +225,19 @@ describe('executeAndCompleteTask', () => {
     // When
     const result = await executeAndCompleteTask(task, {} as never, '/project', 'default');
 
-    // Then: task should be marked as failed
-    expect(result).toBe(false);
+    // Then: code succeeded, task is marked as pr_failed (not failed)
+    expect(result).toBe(true);
     expect(mockBuildTaskResult).toHaveBeenCalledWith(
       expect.objectContaining({
-        runResult: expect.objectContaining({
-          success: false,
-          reason: 'PR creation failed: Base ref must be a branch',
-        }),
+        runResult: expect.objectContaining({ success: true }),
       }),
     );
+    expect(mockPersistPrFailedTaskResult).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      'Base ref must be a branch',
+    );
+    expect(mockPersistTaskResult).not.toHaveBeenCalled();
   });
 
   it('should mark task as completed when PR creation succeeds', async () => {

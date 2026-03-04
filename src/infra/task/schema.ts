@@ -32,7 +32,7 @@ export const TaskFileSchema = TaskExecutionConfigSchema.extend({
 
 export type TaskFileData = z.infer<typeof TaskFileSchema>;
 
-export const TaskStatusSchema = z.enum(['pending', 'running', 'completed', 'failed', 'exceeded']);
+export const TaskStatusSchema = z.enum(['pending', 'running', 'completed', 'failed', 'exceeded', 'pr_failed']);
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 
 export const TaskFailureSchema = z.object({
@@ -237,6 +237,30 @@ export const TaskRecordSchema = TaskExecutionConfigSchema.extend({
         code: z.ZodIssueCode.custom,
         path: ['exceeded_max_movements'],
         message: 'exceeded_max_movements and exceeded_current_iteration must both be set or both be absent.',
+      });
+    }
+  }
+
+  if (value.status === 'pr_failed') {
+    if (value.started_at === null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['started_at'],
+        message: 'PR-failed task requires started_at.',
+      });
+    }
+    if (value.completed_at === null) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['completed_at'],
+        message: 'PR-failed task requires completed_at.',
+      });
+    }
+    if (hasOwnerPid) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['owner_pid'],
+        message: 'PR-failed task must not have owner_pid.',
       });
     }
   }

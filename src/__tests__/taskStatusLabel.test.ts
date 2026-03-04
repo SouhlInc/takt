@@ -24,6 +24,16 @@ describe('formatTaskStatusLabel', () => {
     expect(formatTaskStatusLabel(task)).toBe('[failed] retry-payment');
   });
 
+  it("should format pr_failed task as '[pr-failed] name'", () => {
+    const task = makeTask({ kind: 'pr_failed', name: 'create-feature' });
+    expect(formatTaskStatusLabel(task)).toBe('[pr-failed] create-feature');
+  });
+
+  it("should format pr_failed task with branch", () => {
+    const task = makeTask({ kind: 'pr_failed', name: 'create-feature', branch: 'takt/create-feature' });
+    expect(formatTaskStatusLabel(task)).toBe('[pr-failed] create-feature (takt/create-feature)');
+  });
+
   it('should include branch when present', () => {
     const task = makeTask({
       kind: 'completed',

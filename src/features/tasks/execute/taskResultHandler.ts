@@ -80,6 +80,15 @@ export function buildBooleanTaskResult(params: BuildBooleanTaskResultParams): Ta
   };
 }
 
+export function persistPrFailedTaskResult(
+  taskRunner: TaskRunner,
+  taskResult: TaskResult,
+  prError: string,
+): void {
+  taskRunner.prFailTask(taskResult, prError);
+  info(`Task "${taskResult.task.name}" completed (PR creation failed)`);
+}
+
 export function persistTaskResult(
   taskRunner: TaskRunner,
   taskResult: TaskResult,

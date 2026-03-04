@@ -67,6 +67,10 @@ export class TaskRunner {
     return this.lifecycle.failTask(result);
   }
 
+  prFailTask(result: TaskResult, prError: string): string {
+    return this.lifecycle.prFailTask(result, prError);
+  }
+
   listPendingTaskItems(): TaskListItem[] {
     return this.query.listPendingTaskItems();
   }
@@ -105,7 +109,7 @@ export class TaskRunner {
     return this.lifecycle.startReExecution(taskRef, allowedStatuses, startMovement, retryNote);
   }
 
-  deleteTask(name: string, kind: 'pending' | 'failed' | 'completed' | 'exceeded'): void {
+  deleteTask(name: string, kind: 'pending' | 'failed' | 'completed' | 'exceeded' | 'pr_failed'): void {
     this.deletion.deleteTaskByNameAndStatus(name, kind);
   }
 

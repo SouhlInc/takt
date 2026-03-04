@@ -42,6 +42,7 @@ type PendingTaskAction = 'delete';
 type ExceededTaskAction = 'requeue' | 'delete';
 
 type FailedTaskAction = 'retry' | 'delete';
+type PrFailedTaskAction = ListAction;
 type CompletedTaskAction = ListAction;
 
 async function showExceededTaskAndPromptAction(task: TaskListItem): Promise<ExceededTaskAction | null> {
@@ -93,6 +94,20 @@ async function showFailedTaskAndPromptAction(task: TaskListItem): Promise<Failed
       { label: 'Delete', value: 'delete', description: 'Remove this task permanently' },
     ],
   );
+}
+
+async function showPrFailedTaskAndPromptAction(cwd: string, task: TaskListItem): Promise<PrFailedTaskAction | null> {
+  header(formatTaskStatusLabel(task));
+  info(`  Created: ${task.createdAt}`);
+  if (task.content) {
+    info(`  ${task.content}`);
+  }
+  if (task.failure) {
+    info(`  PR Error: ${task.failure.error}`);
+  }
+  blankLine();
+
+  return await showDiffAndPromptActionForTask(cwd, task);
 }
 
 async function showCompletedTaskAndPromptAction(cwd: string, task: TaskListItem): Promise<CompletedTaskAction | null> {
@@ -225,6 +240,41 @@ export async function listTasks(
         runner.requeueExceededTask(task.name);
       } else if (taskAction === 'delete') {
         await deleteTaskByKind(task);
+      }
+    } else if (type === 'pr_failed') {
+      const task = tasks[idx];
+      if (!task) continue;
+      if (!task.branch) {
+        info(`Branch is missing for pr-failed task: ${task.name}`);
+        continue;
+      }
+      const taskAction = await showPrFailedTaskAndPromptAction(cwd, task);
+      if (taskAction === null) continue;
+
+      switch (taskAction) {
+        case 'diff':
+          showFullDiff(cwd, task.branch);
+          break;
+        case 'instruct':
+          await instructBranch(cwd, task);
+          break;
+        case 'sync':
+          await syncBranchWithRoot(cwd, task);
+          break;
+        case 'pull':
+          pullFromRemote(cwd, task);
+          break;
+        case 'try':
+          tryMergeBranch(cwd, task);
+          break;
+        case 'merge':
+          if (mergeBranch(cwd, task)) {
+            runner.deleteTask(task.name, 'pr_failed');
+          }
+          break;
+        case 'delete':
+          await deleteTaskByKind(task);
+          break;
       }
     }
   }

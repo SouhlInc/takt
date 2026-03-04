@@ -163,6 +163,37 @@ export class TaskLifecycleService {
     return this.tasksFile;
   }
 
+  prFailTask(result: TaskResult, prError: string): string {
+    const failure: TaskFailure = {
+      error: `PR creation failed: ${prError}`,
+    };
+
+    this.store.update((current) => {
+      const index = this.findActiveTaskIndex(current.tasks, result.task.name);
+      if (index === -1) {
+        throw new Error(`Task not found: ${result.task.name}`);
+      }
+
+      const target = current.tasks[index]!;
+      const updated: TaskRecord = {
+        ...target,
+        status: 'pr_failed',
+        started_at: result.startedAt,
+        completed_at: result.completedAt,
+        owner_pid: null,
+        failure,
+        branch: result.branch ?? target.branch,
+        worktree_path: result.worktreePath ?? target.worktree_path,
+        pr_url: result.prUrl ?? target.pr_url,
+      };
+      const tasks = [...current.tasks];
+      tasks[index] = updated;
+      return { tasks };
+    });
+
+    return this.tasksFile;
+  }
+
   requeueFailedTask(taskRef: string, startMovement?: string, retryNote?: string): string {
     return this.requeueTask(taskRef, ['failed'], startMovement, retryNote);
   }

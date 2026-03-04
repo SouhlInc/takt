@@ -50,6 +50,18 @@ function makeFailedRecord() {
   };
 }
 
+function makePrFailedRecord() {
+  return {
+    name: 'test-task',
+    status: 'pr_failed' as const,
+    content: 'task content',
+    created_at: '2025-01-01T00:00:00.000Z',
+    started_at: '2025-01-01T01:00:00.000Z',
+    completed_at: '2025-01-01T02:00:00.000Z',
+    failure: { error: 'PR creation failed: Base ref must be a branch' },
+  };
+}
+
 describe('TaskExecutionConfigSchema', () => {
   it('should accept valid config with all optional fields', () => {
     const config = {
@@ -174,6 +186,32 @@ describe('TaskRecordSchema', () => {
 
     it('should reject completed record with owner_pid', () => {
       const record = { ...makeCompletedRecord(), owner_pid: 1234 };
+      expect(() => TaskRecordSchema.parse(record)).toThrow();
+    });
+  });
+
+  describe('pr_failed status', () => {
+    it('should accept valid pr_failed record with failure', () => {
+      expect(() => TaskRecordSchema.parse(makePrFailedRecord())).not.toThrow();
+    });
+
+    it('should accept pr_failed record without failure (optional)', () => {
+      const record = { ...makePrFailedRecord(), failure: undefined };
+      expect(() => TaskRecordSchema.parse(record)).not.toThrow();
+    });
+
+    it('should reject pr_failed record without started_at', () => {
+      const record = { ...makePrFailedRecord(), started_at: null };
+      expect(() => TaskRecordSchema.parse(record)).toThrow();
+    });
+
+    it('should reject pr_failed record without completed_at', () => {
+      const record = { ...makePrFailedRecord(), completed_at: null };
+      expect(() => TaskRecordSchema.parse(record)).toThrow();
+    });
+
+    it('should reject pr_failed record with owner_pid', () => {
+      const record = { ...makePrFailedRecord(), owner_pid: 1234 };
       expect(() => TaskRecordSchema.parse(record)).toThrow();
     });
   });

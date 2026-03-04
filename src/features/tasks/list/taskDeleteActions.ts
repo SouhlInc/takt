@@ -40,7 +40,7 @@ export async function deleteTaskByKind(task: TaskListItem): Promise<boolean> {
   return true;
 }
 
-type DeletableTask = TaskListItem & { kind: 'pending' | 'failed' | 'completed' | 'exceeded' };
+type DeletableTask = TaskListItem & { kind: 'pending' | 'failed' | 'completed' | 'exceeded' | 'pr_failed' };
 
 export async function deleteAllTasks(tasks: TaskListItem[]): Promise<boolean> {
   const deletable = tasks.filter((t): t is DeletableTask => t.kind !== 'running');

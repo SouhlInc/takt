@@ -60,7 +60,7 @@ export interface SummarizeOptions {
 }
 
 export interface TaskListItem {
-  kind: 'pending' | 'running' | 'completed' | 'failed' | 'exceeded';
+  kind: 'pending' | 'running' | 'completed' | 'failed' | 'exceeded' | 'pr_failed';
   name: string;
   createdAt: string;
   filePath: string;

@@ -89,6 +89,14 @@ export function toFailedTaskItem(projectDir: string, tasksFile: string, task: Ta
   };
 }
 
+export function toPrFailedTaskItem(projectDir: string, tasksFile: string, task: TaskRecord): TaskListItem {
+  return {
+    kind: 'pr_failed',
+    ...toBaseTaskListItem(projectDir, tasksFile, task),
+    failure: task.failure,
+  };
+}
+
 export function toExceededTaskItem(projectDir: string, tasksFile: string, task: TaskRecord): TaskListItem {
   return {
     kind: 'exceeded',
@@ -142,5 +150,7 @@ export function toTaskListItem(projectDir: string, tasksFile: string, task: Task
       return toFailedTaskItem(projectDir, tasksFile, task);
     case 'exceeded':
       return toExceededTaskItem(projectDir, tasksFile, task);
+    case 'pr_failed':
+      return toPrFailedTaskItem(projectDir, tasksFile, task);
   }
 }

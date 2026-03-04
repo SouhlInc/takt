@@ -19,7 +19,7 @@ import type { TaskExecutionOptions, ExecuteTaskOptions, PieceExecutionResult } f
 import { runWithWorkerPool } from './parallelExecution.js';
 import { resolveTaskExecution, resolveTaskIssue } from './resolveTask.js';
 import { postExecutionFlow } from './postExecution.js';
-import { buildTaskResult, persistExceededTaskResult, persistTaskError, persistTaskResult } from './taskResultHandler.js';
+import { buildTaskResult, persistExceededTaskResult, persistTaskError, persistPrFailedTaskResult, persistTaskResult } from './taskResultHandler.js';
 import { generateRunId, toSlackTaskDetail } from './slackSummaryAdapter.js';
 
 export type { TaskExecutionOptions, ExecuteTaskOptions };
@@ -176,7 +176,7 @@ export async function executeAndCompleteTask(
     const completedAt = new Date().toISOString();
 
     let prUrl: string | undefined;
-    let effectiveRunResult = taskRunResult;
+    let prFailedError: string | undefined;
     if (taskSuccess && isWorktree) {
       const issues = resolveTaskIssue(issueNumber);
       const postResult = await postExecutionFlow({
@@ -192,22 +192,28 @@ export async function executeAndCompleteTask(
       });
       prUrl = postResult.prUrl;
       if (postResult.prFailed) {
-        effectiveRunResult = { success: false, reason: `PR creation failed: ${postResult.prError}` };
+        prFailedError = postResult.prError;
       }
     }
 
     const taskResult = buildTaskResult({
       task,
-      runResult: effectiveRunResult,
+      runResult: taskRunResult,
       startedAt,
       completedAt,
       branch,
       worktreePath,
       prUrl,
     });
+
+    if (prFailedError !== undefined) {
+      persistPrFailedTaskResult(taskRunner, taskResult, prFailedError);
+      return true;
+    }
+
     persistTaskResult(taskRunner, taskResult);
 
-    return effectiveRunResult.success;
+    return taskRunResult.success;
   } catch (err) {
     const completedAt = new Date().toISOString();
     persistTaskError(taskRunner, task, startedAt, completedAt, err);
