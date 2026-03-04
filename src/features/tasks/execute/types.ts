@@ -136,6 +136,8 @@ export interface PipelineExecutionOptions {
   repo?: string;
   /** Skip branch creation, commit, and push (piece-only execution) */
   skipGit?: boolean;
+  /** Skip branch creation but still commit and push (use current branch) */
+  skipCheckout?: boolean;
   /** Working directory */
   cwd: string;
   provider?: ProviderType;

@@ -64,6 +64,7 @@ export async function executeDefaultAction(task?: string): Promise<void> {
       draftPr: resolvedPipelineDraftPr,
       repo: opts.repo as string | undefined,
       skipGit: opts.skipGit === true,
+      skipCheckout: opts.skipCheckout === true,
       cwd: resolvedCwd,
       provider: agentOverrides?.provider,
       model: agentOverrides?.model,

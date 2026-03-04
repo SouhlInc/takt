@@ -150,7 +150,7 @@ export function resolveTaskContent(options: PipelineExecutionOptions): TaskConte
 export async function resolveExecutionContext(
   cwd: string,
   task: string,
-  options: Pick<PipelineExecutionOptions, 'createWorktree' | 'skipGit' | 'branch' | 'issueNumber'>,
+  options: Pick<PipelineExecutionOptions, 'createWorktree' | 'skipGit' | 'skipCheckout' | 'branch' | 'issueNumber'>,
   pipelineConfig: PipelineConfig | undefined,
   prBranch?: string,
   prBaseBranch?: string,
@@ -176,6 +176,15 @@ export async function resolveExecutionContext(
       branch: undefined,
       baseBranch: undefined,
     };
+  }
+  if (options.skipCheckout) {
+    const currentBranch = execFileSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd,
+      encoding: 'utf-8',
+    }).trim();
+    const baseBranch = resolveExecutionBaseBranch(cwd);
+    info(`Using current branch: ${currentBranch} (checkout skipped)`);
+    return { execCwd: cwd, branch: currentBranch, baseBranch, isWorktree: false };
   }
   if (prBranch) {
     info(`Fetching and checking out PR branch: ${prBranch}`);
