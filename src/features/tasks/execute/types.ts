@@ -75,6 +75,10 @@ export interface PieceExecutionOptions {
   taskDisplayLabel?: string;
   /** Color index for task prefix (cycled mod 4 across concurrent tasks) */
   taskColorIndex?: number;
+  /** Slack channel ID for movement notifications */
+  channelId?: string;
+  /** Slack thread timestamp for movement notifications */
+  threadTs?: string;
 }
 
 export interface TaskExecutionOptions {
@@ -115,6 +119,10 @@ export interface ExecuteTaskOptions {
   taskDisplayLabel?: string;
   /** Color index for task prefix (cycled mod 4 across concurrent tasks) */
   taskColorIndex?: number;
+  /** Slack channel ID for movement notifications */
+  channelId?: string;
+  /** Slack thread timestamp for movement notifications */
+  threadTs?: string;
 }
 
 export interface PipelineExecutionOptions {
@@ -144,6 +152,10 @@ export interface PipelineExecutionOptions {
   model?: string;
   /** Whether to create worktree for task execution */
   createWorktree?: boolean | undefined;
+  /** Slack channel ID for movement notifications */
+  channelId?: string;
+  /** Slack thread timestamp for movement notifications */
+  threadTs?: string;
 }
 
 export interface WorktreeConfirmationResult {

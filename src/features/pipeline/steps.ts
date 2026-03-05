@@ -211,7 +211,7 @@ export async function runPiece(
   piece: string,
   task: string,
   execCwd: string,
-  options: Pick<PipelineExecutionOptions, 'provider' | 'model'>,
+  options: Pick<PipelineExecutionOptions, 'provider' | 'model' | 'channelId' | 'threadTs'>,
 ): Promise<boolean> {
   info(`Running piece: ${piece}`);
   const agentOverrides: TaskExecutionOptions | undefined = (options.provider || options.model)
@@ -224,6 +224,8 @@ export async function runPiece(
     pieceIdentifier: piece,
     projectCwd,
     agentOverrides,
+    channelId: options.channelId,
+    threadTs: options.threadTs,
   });
 
   if (!taskSuccess) {

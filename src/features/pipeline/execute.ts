@@ -56,7 +56,12 @@ async function runPipeline(options: PipelineExecutionOptions): Promise<PipelineO
   }
 
   log.info('Pipeline piece execution starting', { piece, branch: context.branch, skipGit, issueNumber: options.issueNumber });
-  const pieceOk = await runPiece(cwd, piece, taskContent.task, context.execCwd, options);
+  const pieceOk = await runPiece(cwd, piece, taskContent.task, context.execCwd, {
+    provider: options.provider,
+    model: options.model,
+    channelId: options.channelId,
+    threadTs: options.threadTs,
+  });
   if (!pieceOk) return { exitCode: EXIT_PIECE_FAILED, result: buildResult({ branch: context.branch }) };
 
   if (!skipGit && context.branch) {
