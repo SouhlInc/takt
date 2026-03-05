@@ -54,7 +54,9 @@ program
   .option('--skip-git', 'Skip branch creation, commit, and push (pipeline mode)')
   .option('--skip-checkout', 'Skip branch creation but still commit and push (use current branch)')
   .option('-q, --quiet', 'Minimal output mode: suppress AI output (for CI)')
-  .option('-c, --continue', 'Continue from the last assistant session');
+  .option('-c, --continue', 'Continue from the last assistant session')
+  .option('--channel-id <id>', 'Slack channel ID for movement notifications')
+  .option('--thread-ts <ts>', 'Slack thread timestamp for movement notifications');
 
 /**
  * Run pre-action hook: common initialization for all commands.

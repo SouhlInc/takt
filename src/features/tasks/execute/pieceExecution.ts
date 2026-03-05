@@ -28,6 +28,7 @@ import { AnalyticsEmitter } from './analyticsEmitter.js';
 import { createOutputFns, createPrefixedStreamHandler } from './outputFns.js';
 import { RunMetaManager } from './runMeta.js';
 import { createIterationLimitHandler, createUserInputHandler } from './iterationLimitHandler.js';
+import { createSlackMovementNotifier } from '../../../infra/slack/index.js';
 
 export type { PieceExecutionResult, PieceExecutionOptions };
 
@@ -188,6 +189,12 @@ export async function executePiece(
     });
 
     abortHandler.install();
+    const slackNotifier = createSlackMovementNotifier(
+      options.channelId,
+      options.threadTs,
+      effectivePieceConfig.movements.map((m) => m.name),
+      effectivePieceConfig.maxMovements,
+    );
 
     engine.on('phase:start', (step, phase, phaseName, instruction) => {
       log.debug('Phase starting', { step: step.name, phase, phaseName });
@@ -225,6 +232,15 @@ export async function executePiece(
         });
       }
       sessionLogger.onMovementStart(step, iteration, instruction);
+      if (slackNotifier) {
+        slackNotifier.notifyMovementStart(
+          step.name,
+          step.personaDisplayName,
+          iteration,
+          movementProvider,
+          movementModel,
+        );
+      }
     });
 
     engine.on('movement:complete', (step, response, instruction) => {
@@ -246,6 +262,10 @@ export async function executePiece(
       sessionLogger.onMovementComplete(step, response, instruction);
       analyticsEmitter.onMovementComplete(step, response);
       sessionLog = { ...sessionLog, iterations: sessionLog.iterations + 1 };
+      if (slackNotifier) {
+        const summary = response.content ? response.content.slice(0, 200) : undefined;
+        slackNotifier.notifyMovementComplete(step.name, response.status, summary);
+      }
     });
 
     engine.on('movement:report', (step, filePath, fileName) => {
@@ -266,6 +286,9 @@ export async function executePiece(
       out.success(`Piece completed (${state.iteration} iterations${elapsed ? `, ${elapsed}` : ''})`);
       out.info(`Session log: ${ndjsonLogPath}`);
       if (shouldNotifyPieceComplete) notifySuccess('TAKT', getLabel('piece.notifyComplete', undefined, { iteration: String(state.iteration) }));
+      if (slackNotifier) {
+        slackNotifier.notifyPieceComplete(state.iteration);
+      }
     });
 
     engine.on('piece:abort', (state, reason) => {
@@ -284,6 +307,9 @@ export async function executePiece(
       out.error(`Piece aborted after ${state.iteration} iterations${elapsed ? ` (${elapsed})` : ''}: ${reason}`);
       out.info(`Session log: ${ndjsonLogPath}`);
       if (shouldNotifyPieceAbort) notifyError('TAKT', getLabel('piece.notifyAbort', undefined, { reason }));
+      if (slackNotifier) {
+        slackNotifier.notifyPieceAbort(state.iteration, reason);
+      }
     });
 
     const finalState = await engine.run();

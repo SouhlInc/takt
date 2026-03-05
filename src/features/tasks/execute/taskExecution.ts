@@ -50,6 +50,8 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     taskDisplayLabel,
     maxMovementsOverride,
     initialIterationOverride,
+    channelId,
+    threadTs,
   } = options;
   const pieceConfig = loadPieceByIdentifier(pieceIdentifier, projectCwd);
 
@@ -92,6 +94,8 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     taskDisplayLabel,
     maxMovementsOverride,
     initialIterationOverride,
+    channelId,
+    threadTs,
   });
 }
 

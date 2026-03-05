@@ -68,6 +68,8 @@ export async function executeDefaultAction(task?: string): Promise<void> {
       cwd: resolvedCwd,
       provider: agentOverrides?.provider,
       model: agentOverrides?.model,
+      channelId: opts.channelId as string | undefined,
+      threadTs: opts.threadTs as string | undefined,
     });
 
     if (exitCode !== 0) {
