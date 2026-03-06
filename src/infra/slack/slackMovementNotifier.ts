@@ -41,7 +41,8 @@ export class SlackMovementNotifier {
     this.movementStartTimes.set(movementName, Date.now());
     const stepIndex = this.getStepIndex(movementName);
     const totalSteps = this.movementNames.length;
-    const text = `[${iteration}/${this.maxMovements}] (${stepIndex}/${totalSteps}) ${movementName} (${personaDisplayName}) 開始\nProvider: ${provider} | Model: ${model}`;
+    const modelSuffix = model && model !== '(default)' ? ` ${model}` : '';
+    const text = `*【${stepIndex}/${totalSteps}】${movementName} (${personaDisplayName}) 開始*   (${provider}${modelSuffix} [${iteration}/${this.maxMovements}])`;
     this.post(text);
   }
 
@@ -58,27 +59,27 @@ export class SlackMovementNotifier {
     if (status === 'error') {
       this.errorCount++;
       const summary = responseSummary ? `\n${responseSummary.slice(0, 200)}` : '';
-      const text = `[${stepIndex}/${totalSteps}] ${movementName} エラー${summary}`;
+      const text = `*【${stepIndex}/${totalSteps}】${movementName} エラー*${summary}`;
       this.post(text);
       return;
     }
 
     this.successCount++;
-    const summary = responseSummary ? `\n出力サマリー: ${responseSummary.slice(0, 200)}` : '';
-    const text = `[${stepIndex}/${totalSteps}] ${movementName} 完了${durationStr}${summary}`;
+    const summary = responseSummary ? `\n${responseSummary.slice(0, 200)}` : '';
+    const text = `*【${stepIndex}/${totalSteps}】${movementName} 完了*${durationStr}${summary}`;
     this.post(text);
   }
 
   notifyPieceComplete(totalIterations: number): void {
     const totalDuration = this.getTotalDuration();
-    const text = `Piece 完了\n実行 movements: ${String(totalIterations)}\n成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)}\n合計実行時間: ${String(totalDuration)}s`;
+    const text = `*Piece 完了*\n実行 movements: ${String(totalIterations)} | 成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)} | ${String(totalDuration)}s`;
     this.post(text);
   }
 
   notifyPieceAbort(totalIterations: number, reason: string): void {
     const totalDuration = this.getTotalDuration();
     const truncatedReason = reason.slice(0, 200);
-    const text = `Piece 中断: ${truncatedReason}\n実行 movements: ${String(totalIterations)}\n成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)}\n合計実行時間: ${String(totalDuration)}s`;
+    const text = `*Piece 中断*: ${truncatedReason}\n実行 movements: ${String(totalIterations)} | 成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)} | ${String(totalDuration)}s`;
     this.post(text);
   }
 
