@@ -36,6 +36,15 @@ const CODEX_RETRYABLE_ERROR_PATTERNS = [
   'etimedout',
   'eai_again',
   'fetch failed',
+  'codex exec exited with',
+  'rate limit',
+  '429',
+  '500',
+  '502',
+  '503',
+  'internal server error',
+  'service unavailable',
+  'bad gateway',
 ];
 
 /**
