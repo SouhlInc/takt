@@ -182,6 +182,8 @@ export interface PieceEngineOptions {
   taskColorIndex?: number;
   /** Initial iteration count (for resuming exceeded tasks) */
   initialIteration?: number;
+  /** Initial per-movement iteration counts (for checkpoint resume) */
+  initialMovementIterations?: Record<string, number>;
 }
 
 /** Loop detection result */

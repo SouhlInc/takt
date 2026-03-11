@@ -34,6 +34,7 @@ import { ArpeggioRunner } from './ArpeggioRunner.js';
 import { TeamLeaderRunner } from './TeamLeaderRunner.js';
 import { buildRunPaths, type RunPaths } from '../run/run-paths.js';
 import { prepareRuntimeEnvironment } from '../../runtime/runtime-environment.js';
+import { saveCheckpoint, markCheckpointCompleted } from './checkpoint.js';
 
 const log = createLogger('engine');
 
@@ -525,6 +526,8 @@ export class PieceEngine extends EventEmitter {
   async run(): Promise<PieceState> {
     while (this.state.status === 'running') {
       if (this.abortRequested) {
+        // Save checkpoint so the run can be resumed
+        saveCheckpoint(this.runPaths, this.state, this.state.currentMovement, this.state.currentMovement, this.task);
         this.state.status = 'aborted';
         this.emit('piece:abort', this.state, 'Piece interrupted by user (SIGINT)');
         break;
@@ -549,6 +552,8 @@ export class PieceEngine extends EventEmitter {
           }
         }
 
+        // Save checkpoint so the run can be resumed
+        saveCheckpoint(this.runPaths, this.state, this.state.currentMovement, this.state.currentMovement, this.task);
         this.state.status = 'aborted';
         this.emit('piece:abort', this.state, ERROR_MESSAGES.MAX_MOVEMENTS_REACHED);
         break;
@@ -660,18 +665,26 @@ export class PieceEngine extends EventEmitter {
 
         if (nextMovement === COMPLETE_MOVEMENT) {
           this.state.status = 'completed';
+          markCheckpointCompleted(this.runPaths);
           this.emit('piece:complete', this.state);
           break;
         }
 
         if (nextMovement === ABORT_MOVEMENT) {
+          // Save checkpoint so the run can be resumed from this point
+          saveCheckpoint(this.runPaths, this.state, movement.name, movement.name, this.task);
           this.state.status = 'aborted';
           this.emit('piece:abort', this.state, 'Piece aborted by movement transition');
           break;
         }
 
+        // Save checkpoint after successful movement completion
+        saveCheckpoint(this.runPaths, this.state, movement.name, nextMovement, this.task);
+
         this.state.currentMovement = nextMovement;
       } catch (error) {
+        // Save checkpoint so the run can be resumed
+        saveCheckpoint(this.runPaths, this.state, movement.name, movement.name, this.task);
         this.state.status = 'aborted';
         if (this.abortRequested) {
           this.emit('piece:abort', this.state, 'Piece interrupted by user (SIGINT)');

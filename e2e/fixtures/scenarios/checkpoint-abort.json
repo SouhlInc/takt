@@ -1,0 +1,20 @@
+[
+  {
+    "status": "done",
+    "content": "Step 1 completed successfully."
+  },
+  {
+    "status": "done",
+    "content": "Step 2 completed successfully."
+  },
+  {
+    "status": "done",
+    "content": "Step 3 encountered an error."
+  },
+  {
+    "persona": "conductor",
+    "status": "done",
+    "content": "Judgment: rule 2 (Error encountered)",
+    "structured_output": { "step": 2 }
+  }
+]

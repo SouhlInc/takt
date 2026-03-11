@@ -13,3 +13,5 @@ export { TeamLeaderRunner } from './TeamLeaderRunner.js';
 export { OptionsBuilder } from './OptionsBuilder.js';
 export { CycleDetector } from './cycle-detector.js';
 export type { CycleCheckResult } from './cycle-detector.js';
+export { saveCheckpoint, loadCheckpoint, findLatestCheckpoint, markCheckpointCompleted } from './checkpoint.js';
+export type { Checkpoint } from './checkpoint.js';

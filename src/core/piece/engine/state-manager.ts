@@ -34,6 +34,14 @@ export class StateManager {
       ? [...options.initialUserInputs]
       : [];
 
+    // Restore per-movement iteration counts from options if provided
+    const movementIterations = new Map<string, number>();
+    if (options.initialMovementIterations) {
+      for (const [name, count] of Object.entries(options.initialMovementIterations)) {
+        movementIterations.set(name, count);
+      }
+    }
+
     this.state = {
       pieceName: config.name,
       currentMovement: options.startMovement ?? config.initialMovement,
@@ -43,7 +51,7 @@ export class StateManager {
       previousResponseSourcePath: undefined,
       userInputs,
       personaSessions,
-      movementIterations: new Map(),
+      movementIterations,
       status: 'running',
     };
   }

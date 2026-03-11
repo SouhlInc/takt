@@ -45,6 +45,8 @@ export interface PieceExecutionOptions {
   maxMovementsOverride?: number;
   /** Override initial iteration count (used when resuming exceeded tasks) */
   initialIterationOverride?: number;
+  /** Initial per-movement iteration counts (for checkpoint resume) */
+  initialMovementIterations?: Record<string, number>;
   /** Language for instruction metadata */
   language?: Language;
   provider?: ProviderType;
@@ -101,6 +103,8 @@ export interface ExecuteTaskOptions {
   maxMovementsOverride?: number;
   /** Override initial iteration count (used when resuming exceeded tasks) */
   initialIterationOverride?: number;
+  /** Initial per-movement iteration counts (for checkpoint resume) */
+  initialMovementIterations?: Record<string, number>;
   /** Enable interactive user input during step transitions */
   interactiveUserInput?: boolean;
   /** Interactive mode result metadata for NDJSON logging */
@@ -156,6 +160,8 @@ export interface PipelineExecutionOptions {
   channelId?: string;
   /** Slack thread timestamp for movement notifications */
   threadTs?: string;
+  /** Resume from checkpoint: true for latest, or run-dir name for specific */
+  resume?: boolean | string;
 }
 
 export interface WorktreeConfirmationResult {

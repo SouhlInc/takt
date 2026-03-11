@@ -19,6 +19,8 @@ import {
   buildCommitMessage,
   type ExecutionContext,
 } from './steps.js';
+import { findLatestCheckpoint, loadCheckpoint, type Checkpoint } from '../../core/piece/engine/checkpoint.js';
+import { buildRunPaths } from '../../core/piece/run/run-paths.js';
 
 export type { PipelineExecutionOptions };
 
@@ -55,12 +57,40 @@ async function runPipeline(options: PipelineExecutionOptions): Promise<PipelineO
     return { exitCode: EXIT_GIT_OPERATION_FAILED, result: buildResult() };
   }
 
-  log.info('Pipeline piece execution starting', { piece, branch: context.branch, skipGit, issueNumber: options.issueNumber });
+  // Resolve checkpoint for --resume
+  let checkpoint: Checkpoint | undefined;
+  if (options.resume) {
+    if (typeof options.resume === 'string') {
+      const runPaths = buildRunPaths(context.execCwd, options.resume);
+      const loaded = loadCheckpoint(runPaths);
+      if (loaded && loaded.status === 'in_progress') {
+        checkpoint = loaded;
+      } else {
+        error(`No resumable checkpoint found in run directory: ${options.resume}`);
+        return { exitCode: EXIT_PIECE_FAILED, result: buildResult({ branch: context.branch }) };
+      }
+    } else {
+      // Don't filter by piece name: the CLI --piece value is a file path/identifier,
+      // but checkpoint stores the YAML name field. They won't match.
+      const found = findLatestCheckpoint(context.execCwd);
+      if (found) {
+        checkpoint = found.checkpoint;
+      } else {
+        error('No resumable checkpoint found. Running from the beginning.');
+      }
+    }
+    if (checkpoint) {
+      info(`Resuming from checkpoint: movement "${checkpoint.nextMovement}" (iteration ${checkpoint.iteration})`);
+    }
+  }
+
+  log.info('Pipeline piece execution starting', { piece, branch: context.branch, skipGit, issueNumber: options.issueNumber, resume: !!checkpoint });
   const pieceOk = await runPiece(cwd, piece, taskContent.task, context.execCwd, {
     provider: options.provider,
     model: options.model,
     channelId: options.channelId,
     threadTs: options.threadTs,
+    checkpoint,
   });
   if (!pieceOk) return { exitCode: EXIT_PIECE_FAILED, result: buildResult({ branch: context.branch }) };
 

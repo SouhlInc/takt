@@ -1,0 +1,16 @@
+[
+  {
+    "status": "done",
+    "content": "Step 3 completed successfully this time."
+  },
+  {
+    "persona": "conductor",
+    "status": "done",
+    "content": "Judgment: rule 1 (Success)",
+    "structured_output": { "step": 1 }
+  },
+  {
+    "status": "done",
+    "content": "Step 4 completed. All done."
+  }
+]

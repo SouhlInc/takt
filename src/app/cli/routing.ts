@@ -54,6 +54,7 @@ export async function executeDefaultAction(task?: string): Promise<void> {
   };
 
   if (pipelineMode) {
+    const resumeOpt = opts.resume as string | boolean | undefined;
     const exitCode = await executePipeline({
       issueNumber,
       prNumber,
@@ -70,6 +71,7 @@ export async function executeDefaultAction(task?: string): Promise<void> {
       model: agentOverrides?.model,
       channelId: opts.channelId as string | undefined,
       threadTs: opts.threadTs as string | undefined,
+      resume: resumeOpt === true ? true : (typeof resumeOpt === 'string' ? resumeOpt : undefined),
     });
 
     if (exitCode !== 0) {
