@@ -1,0 +1,41 @@
+name: e2e-checkpoint-test
+description: Four-step piece for checkpoint resume E2E testing
+max_movements: 10
+initial_movement: step-1
+movements:
+  - name: step-1
+    edit: false
+    persona: ../agents/test-coder.md
+    instruction_template: |
+      {task}
+    rules:
+      - condition: Done
+        next: step-2
+  - name: step-2
+    edit: false
+    persona: ../agents/test-coder.md
+    instruction_template: |
+      Continue the task. Step 2.
+    rules:
+      - condition: Done
+        next: step-3
+  - name: step-3
+    edit: false
+    persona: ../agents/test-coder.md
+    instruction_template: |
+      Continue the task. Step 3.
+    rules:
+      - condition: Success
+        next: step-4
+      - condition: Error encountered
+        next: ABORT
+        appendix: |
+          Step 3 encountered an error and needs to be retried.
+  - name: step-4
+    edit: false
+    persona: ../agents/test-coder.md
+    instruction_template: |
+      Continue the task. Step 4.
+    rules:
+      - condition: Done
+        next: COMPLETE

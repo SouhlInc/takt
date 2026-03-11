@@ -70,7 +70,9 @@ async function runPipeline(options: PipelineExecutionOptions): Promise<PipelineO
         return { exitCode: EXIT_PIECE_FAILED, result: buildResult({ branch: context.branch }) };
       }
     } else {
-      const found = findLatestCheckpoint(context.execCwd, piece);
+      // Don't filter by piece name: the CLI --piece value is a file path/identifier,
+      // but checkpoint stores the YAML name field. They won't match.
+      const found = findLatestCheckpoint(context.execCwd);
       if (found) {
         checkpoint = found.checkpoint;
       } else {
