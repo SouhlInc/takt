@@ -6,6 +6,7 @@ import { executeTask, confirmAndCreateWorktree, type TaskExecutionOptions, type 
 import { info, error, success } from '../../shared/ui/index.js';
 import { getErrorMessage } from '../../shared/utils/index.js';
 import type { PipelineConfig } from '../../core/models/index.js';
+import type { Checkpoint } from '../../core/piece/engine/checkpoint.js';
 
 export interface TaskContent {
   task: string;
@@ -211,13 +212,14 @@ export async function runPiece(
   piece: string,
   task: string,
   execCwd: string,
-  options: Pick<PipelineExecutionOptions, 'provider' | 'model' | 'channelId' | 'threadTs'>,
+  options: Pick<PipelineExecutionOptions, 'provider' | 'model' | 'channelId' | 'threadTs'> & { checkpoint?: Checkpoint },
 ): Promise<boolean> {
   info(`Running piece: ${piece}`);
   const agentOverrides: TaskExecutionOptions | undefined = (options.provider || options.model)
     ? { provider: options.provider, model: options.model }
     : undefined;
 
+  const cp = options.checkpoint;
   const taskSuccess = await executeTask({
     task,
     cwd: execCwd,
@@ -226,6 +228,14 @@ export async function runPiece(
     agentOverrides,
     channelId: options.channelId,
     threadTs: options.threadTs,
+    // Resume from checkpoint
+    ...(cp ? {
+      startMovement: cp.nextMovement,
+      retryNote: `Resumed from checkpoint. Last completed movement: "${cp.completedMovement}" at iteration ${cp.iteration}.`,
+      initialIterationOverride: cp.iteration,
+      initialMovementIterations: cp.movementIterations,
+      reportDirName: cp.reportDirName,
+    } : {}),
   });
 
   if (!taskSuccess) {

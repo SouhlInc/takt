@@ -55,6 +55,7 @@ program
   .option('--skip-checkout', 'Skip branch creation but still commit and push (use current branch)')
   .option('-q, --quiet', 'Minimal output mode: suppress AI output (for CI)')
   .option('-c, --continue', 'Continue from the last assistant session')
+  .option('--resume [run-dir]', 'Resume from last checkpoint (optionally specify run directory)')
   .option('--channel-id <id>', 'Slack channel ID for movement notifications')
   .option('--thread-ts <ts>', 'Slack thread timestamp for movement notifications');
 

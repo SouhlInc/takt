@@ -186,6 +186,7 @@ export async function executePiece(
       taskPrefix: options.taskPrefix,
       taskColorIndex: options.taskColorIndex,
       initialIteration: options.initialIterationOverride,
+      initialMovementIterations: options.initialMovementIterations,
     });
 
     abortHandler.install();

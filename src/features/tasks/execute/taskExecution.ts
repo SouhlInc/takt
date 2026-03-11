@@ -50,6 +50,7 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     taskDisplayLabel,
     maxMovementsOverride,
     initialIterationOverride,
+    initialMovementIterations,
     channelId,
     threadTs,
   } = options;
@@ -94,6 +95,7 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     taskDisplayLabel,
     maxMovementsOverride,
     initialIterationOverride,
+    initialMovementIterations,
     channelId,
     threadTs,
   });
