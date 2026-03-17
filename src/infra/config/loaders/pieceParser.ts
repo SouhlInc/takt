@@ -299,6 +299,7 @@ function normalizeStepFromRaw(
       globalOverrides,
     ),
     passPreviousResponse: step.pass_previous_response ?? true,
+    timeoutMs: step.timeout_ms,
     policyContents,
     knowledgeContents,
   };

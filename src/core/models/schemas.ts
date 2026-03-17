@@ -357,6 +357,8 @@ export const PieceMovementRawSchema = z.object({
   /** Quality gates for this movement (AI directives) */
   quality_gates: QualityGatesSchema,
   pass_previous_response: z.boolean().optional().default(true),
+  /** Timeout in milliseconds for this movement. If the movement takes longer, it will be aborted. */
+  timeout_ms: z.number().int().positive().optional(),
   /** Sub-movements to execute in parallel */
   parallel: z.array(ParallelSubMovementRawSchema).optional(),
   /** Arpeggio configuration for data-driven batch processing */
