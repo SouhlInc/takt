@@ -152,6 +152,8 @@ export interface PieceMovement {
   /** Quality gates for this movement (AI directives for completion requirements) */
   qualityGates?: string[];
   passPreviousResponse: boolean;
+  /** Timeout in milliseconds for this movement. If the movement takes longer, it will be aborted. */
+  timeoutMs?: number;
   /** Sub-movements to execute in parallel. When set, this movement runs all sub-movements concurrently. */
   parallel?: PieceMovement[];
   /** Arpeggio configuration for data-driven batch processing. When set, this movement reads from a data source, expands templates, and calls LLM per batch. */

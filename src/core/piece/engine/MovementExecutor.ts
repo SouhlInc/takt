@@ -21,6 +21,7 @@ import { needsStatusJudgmentPhase, runReportPhase, runStatusJudgmentPhase } from
 import { detectMatchedRule } from '../evaluation/index.js';
 import { buildSessionKey } from '../session-key.js';
 import { incrementMovementIteration, getPreviousOutput } from './state-manager.js';
+import { buildAbortSignal } from './abort-signal.js';
 import { createLogger } from '../../../shared/utils/index.js';
 import type { OptionsBuilder } from './OptionsBuilder.js';
 import type { RunPaths } from '../run/run-paths.js';
@@ -278,7 +279,38 @@ export class MovementExecutor {
     // Phase 1: main execution (Write excluded if movement has report)
     this.deps.onPhaseStart?.(step, 1, 'execute', instruction);
     const agentOptions = this.deps.optionsBuilder.buildAgentOptions(step);
-    let response = await executeAgent(step.persona, instruction, agentOptions);
+
+    let response: AgentResponse;
+    if (step.timeoutMs) {
+      const { signal, dispose } = buildAbortSignal(step.timeoutMs, undefined);
+      try {
+        response = await Promise.race([
+          executeAgent(step.persona, instruction, agentOptions),
+          new Promise<never>((_, reject) => {
+            signal.addEventListener('abort', () => reject(signal.reason), { once: true });
+            if (signal.aborted) reject(signal.reason);
+          }),
+        ]);
+      } catch (err) {
+        if (err instanceof Error && err.message.includes('timeout')) {
+          log.info('Movement timed out', { movement: step.name, timeoutMs: step.timeoutMs });
+          response = {
+            persona: step.persona ?? step.name,
+            timestamp: new Date(),
+            content: `Movement "${step.name}" timed out after ${step.timeoutMs}ms`,
+            status: 'error',
+            error: `Movement timed out after ${step.timeoutMs}ms`,
+          };
+        } else {
+          throw err;
+        }
+      } finally {
+        dispose();
+      }
+    } else {
+      response = await executeAgent(step.persona, instruction, agentOptions);
+    }
+
     updatePersonaSession(sessionKey, response.sessionId);
     this.deps.onPhaseComplete?.(step, 1, 'execute', response.content, response.status, response.error);
 
