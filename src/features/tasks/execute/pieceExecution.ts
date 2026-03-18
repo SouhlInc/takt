@@ -264,8 +264,7 @@ export async function executePiece(
       analyticsEmitter.onMovementComplete(step, response);
       sessionLog = { ...sessionLog, iterations: sessionLog.iterations + 1 };
       if (slackNotifier) {
-        const summary = response.content ? response.content.slice(0, 200) : undefined;
-        slackNotifier.notifyMovementComplete(step.name, response.status, summary);
+        slackNotifier.notifyMovementComplete(step.name, response.status, response.content || undefined);
       }
     });
 

@@ -1,4 +1,12 @@
+import { uploadFileToSlack } from './slackFileUpload.js';
+
 const SLACK_BOT_TOKEN_ENV_KEY = 'TAKT_SLACK_BOT_TOKEN';
+
+/**
+ * Messages longer than this threshold are uploaded as a file instead of
+ * being posted as inline text, so the full content is always visible.
+ */
+const FILE_UPLOAD_THRESHOLD = 300;
 
 function getSlackBotToken(): string | undefined {
   return process.env[SLACK_BOT_TOKEN_ENV_KEY];
@@ -55,19 +63,22 @@ export class SlackMovementNotifier {
     const totalSteps = this.movementNames.length;
     const duration = this.getMovementDuration(movementName);
     const durationStr = duration !== undefined ? `\n実行時間: ${String(duration)}s` : '';
+    const statusLabel = status === 'error' ? 'エラー' : '完了';
 
     if (status === 'error') {
       this.errorCount++;
-      const summary = responseSummary ? `\n${responseSummary.slice(0, 200)}` : '';
-      const text = `*【${stepIndex}/${totalSteps}】${movementName} エラー*${summary}`;
-      this.post(text);
-      return;
+    } else {
+      this.successCount++;
     }
 
-    this.successCount++;
-    const summary = responseSummary ? `\n${responseSummary.slice(0, 200)}` : '';
-    const text = `*【${stepIndex}/${totalSteps}】${movementName} 完了*${durationStr}${summary}`;
-    this.post(text);
+    const headerText = `*【${stepIndex}/${totalSteps}】${movementName} ${statusLabel}*${durationStr}`;
+
+    if (responseSummary && responseSummary.length > FILE_UPLOAD_THRESHOLD) {
+      this.postWithFile(headerText, responseSummary, `${movementName}.md`);
+    } else {
+      const summary = responseSummary ? `\n${responseSummary}` : '';
+      this.post(`${headerText}${summary}`);
+    }
   }
 
   notifyPieceComplete(totalIterations: number): void {
@@ -78,9 +89,13 @@ export class SlackMovementNotifier {
 
   notifyPieceAbort(totalIterations: number, reason: string): void {
     const totalDuration = this.getTotalDuration();
-    const truncatedReason = reason.slice(0, 200);
-    const text = `*Piece 中断*: ${truncatedReason}\n実行 movements: ${String(totalIterations)} | 成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)} | ${String(totalDuration)}s`;
-    this.post(text);
+    const headerText = `*Piece 中断*\n実行 movements: ${String(totalIterations)} | 成功: ${String(this.successCount)} / エラー: ${String(this.errorCount)} | ${String(totalDuration)}s`;
+
+    if (reason.length > FILE_UPLOAD_THRESHOLD) {
+      this.postWithFile(headerText, reason, 'abort-reason.md');
+    } else {
+      this.post(`${headerText}\n${reason}`);
+    }
   }
 
   private getStepIndex(movementName: string): number {
@@ -125,6 +140,31 @@ export class SlackMovementNotifier {
       .catch((err: unknown) => {
         const detail = err instanceof Error ? err.message : String(err);
         process.stderr.write(`Slack movement notification failed: ${detail}\n`);
+      });
+  }
+
+  /**
+   * Post a header message and upload the full content as a file attachment.
+   * Falls back to a truncated text message if file upload fails.
+   */
+  private postWithFile(headerText: string, content: string, filename: string): void {
+    uploadFileToSlack({
+      botToken: this.botToken,
+      channelId: this.channelId,
+      threadTs: this.threadTs,
+      content,
+      filename,
+      title: filename,
+      initialComment: headerText,
+    })
+      .then((ok) => {
+        if (!ok) {
+          // Fallback: post truncated text
+          this.post(`${headerText}\n${content.slice(0, 500)}…`);
+        }
+      })
+      .catch(() => {
+        this.post(`${headerText}\n${content.slice(0, 500)}…`);
       });
   }
 }

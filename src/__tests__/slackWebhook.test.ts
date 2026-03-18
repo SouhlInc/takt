@@ -286,7 +286,7 @@ describe('buildSlackRunSummary', () => {
     const result = buildSlackRunSummary(params);
 
     // Then
-    expect(result.length).toBeLessThanOrEqual(3800);
+    expect(result.length).toBeLessThanOrEqual(8000);
     expect(result).toMatch(/\.\.\.and \d+ more$/);
   });
 
@@ -307,9 +307,9 @@ describe('buildSlackRunSummary', () => {
     expect(result).not.toContain('\n  error=Line one\n');
   });
 
-  it('should truncate long error text at 120 characters', () => {
+  it('should truncate long error text at 500 characters', () => {
     // Given
-    const longError = 'A'.repeat(200);
+    const longError = 'A'.repeat(600);
     const task = makeTask({
       name: 'task-long-err',
       success: false,
@@ -321,8 +321,8 @@ describe('buildSlackRunSummary', () => {
     const result = buildSlackRunSummary(params);
 
     // Then
-    expect(result).toContain(`error=${'A'.repeat(117)}...`);
-    expect(result).not.toContain('A'.repeat(200));
+    expect(result).toContain(`error=${'A'.repeat(497)}...`);
+    expect(result).not.toContain('A'.repeat(600));
   });
 
   it('should handle mixed success and failure tasks with PR present only on some', () => {
