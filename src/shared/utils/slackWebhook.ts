@@ -66,8 +66,8 @@ export interface SlackRunSummaryParams {
   tasks: SlackTaskDetail[];
 }
 
-const CHAR_LIMIT = 3_800;
-const TRUNCATE_LENGTH = 120;
+const CHAR_LIMIT = 8_000;
+const TRUNCATE_LENGTH = 500;
 
 function normalizeText(text: string): string {
   return text.replace(/[\r\n]+/g, ' ');
