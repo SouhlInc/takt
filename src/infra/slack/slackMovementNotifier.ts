@@ -145,7 +145,7 @@ export class SlackMovementNotifier {
 
   /**
    * Post a header message and upload the full content as a file attachment.
-   * Falls back to a truncated text message if file upload fails.
+   * Falls back to posting the full text via chat.postMessage (supports up to 40K chars).
    */
   private postWithFile(headerText: string, content: string, filename: string): void {
     uploadFileToSlack({
@@ -159,12 +159,12 @@ export class SlackMovementNotifier {
     })
       .then((ok) => {
         if (!ok) {
-          // Fallback: post truncated text
-          this.post(`${headerText}\n${content.slice(0, 500)}…`);
+          // Fallback: post full text via chat.postMessage (up to 40K chars)
+          this.post(`${headerText}\n${content}`);
         }
       })
       .catch(() => {
-        this.post(`${headerText}\n${content.slice(0, 500)}…`);
+        this.post(`${headerText}\n${content}`);
       });
   }
 }
