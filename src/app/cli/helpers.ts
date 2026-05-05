@@ -19,12 +19,13 @@ export function resolveAgentOverrides(program: Command): TaskExecutionOptions | 
   const opts = program.opts();
   const provider = opts.provider as ProviderType | undefined;
   const model = opts.model as string | undefined;
+  const allowCodex = opts.allowCodex as boolean | undefined;
 
-  if (!provider && !model) {
+  if (!provider && !model && allowCodex === undefined) {
     return undefined;
   }
 
-  return { provider, model };
+  return { provider, model, allowCodex: allowCodex === true };
 }
 
 /**

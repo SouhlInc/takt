@@ -54,6 +54,7 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     channelId,
     threadTs,
   } = options;
+  const allowCodex = options.allowCodex ?? agentOverrides?.allowCodex;
   const pieceConfig = loadPieceByIdentifier(pieceIdentifier, projectCwd);
 
   if (!pieceConfig) {
@@ -80,6 +81,7 @@ async function executeTaskWithResult(options: ExecuteTaskOptions): Promise<Piece
     language: config.language,
     provider: agentOverrides?.provider,
     model: agentOverrides?.model,
+    allowCodex,
     providerOptions: providerOptions.value,
     providerOptionsSource: providerOptions.source === 'piece' ? 'global' : providerOptions.source,
     personaProviders: config.personaProviders,

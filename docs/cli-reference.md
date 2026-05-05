@@ -20,6 +20,7 @@ This document provides a complete reference for all TAKT CLI commands and option
 | `--repo <owner/repo>` | Specify repository (for PR creation) |
 | `-q, --quiet` | Minimal output mode: suppress AI output (for CI) |
 | `--provider <name>` | Override agent provider (claude\|codex\|opencode\|cursor\|copilot\|mock) |
+| `--allow-codex` | Permit Codex provider execution for this run; required for `provider: codex`, `--provider codex`, and `persona_providers` routes to Codex |
 | `--model <name>` | Override agent model |
 | `--config <path>` | Path to global config file (default: `~/.takt/config.yaml`) |
 

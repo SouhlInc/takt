@@ -88,6 +88,7 @@ async function runPipeline(options: PipelineExecutionOptions): Promise<PipelineO
   const pieceOk = await runPiece(cwd, piece, taskContent.task, context.execCwd, {
     provider: options.provider,
     model: options.model,
+    allowCodex: options.allowCodex,
     channelId: options.channelId,
     threadTs: options.threadTs,
     checkpoint,

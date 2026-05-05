@@ -20,6 +20,7 @@
 | `--repo <owner/repo>` | リポジトリを指定（PR 作成用） |
 | `-q, --quiet` | 最小出力モード: AI 出力を抑制（CI 向け） |
 | `--provider <name>` | エージェント provider を上書き（claude\|codex\|opencode\|cursor\|copilot\|mock） |
+| `--allow-codex` | この実行で Codex provider を許可。`provider: codex`、`--provider codex`、Codex への `persona_providers` ルーティングに必須 |
 | `--model <name>` | エージェントモデルを上書き |
 | `--config <path>` | グローバル設定ファイルのパス（デフォルト: `~/.takt/config.yaml`） |
 

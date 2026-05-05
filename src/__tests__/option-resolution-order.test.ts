@@ -311,4 +311,45 @@ describe('option resolution order', () => {
       expect.objectContaining({ permissionMode: 'readonly' }),
     );
   });
+
+  it('should reject codex provider when allowCodex is false', async () => {
+    loadProjectConfigMock.mockReturnValue({
+      provider: 'claude',
+      personaProviders: {
+        coder: { provider: 'codex' },
+      },
+    });
+    loadGlobalConfigMock.mockReturnValue({
+      provider: 'claude',
+      language: 'en',
+      concurrency: 1,
+      taskPollIntervalMs: 500,
+    });
+
+    await expect(runAgent('coder', 'task', {
+      cwd: '/repo',
+      allowCodex: false,
+    })).rejects.toThrow(/--allow-codex/);
+
+    expect(getProviderMock).not.toHaveBeenCalledWith('codex');
+  });
+
+  it('should allow codex provider when allowCodex is true', async () => {
+    loadProjectConfigMock.mockReturnValue({
+      provider: 'codex',
+    });
+    loadGlobalConfigMock.mockReturnValue({
+      provider: 'claude',
+      language: 'en',
+      concurrency: 1,
+      taskPollIntervalMs: 500,
+    });
+
+    await runAgent(undefined, 'task', {
+      cwd: '/repo',
+      allowCodex: true,
+    });
+
+    expect(getProviderMock).toHaveBeenLastCalledWith('codex');
+  });
 });

@@ -69,6 +69,7 @@ export async function executeDefaultAction(task?: string): Promise<void> {
       cwd: resolvedCwd,
       provider: agentOverrides?.provider,
       model: agentOverrides?.model,
+      allowCodex: opts.allowCodex === true,
       channelId: opts.channelId as string | undefined,
       threadTs: opts.threadTs as string | undefined,
       resume: resumeOpt === true ? true : (typeof resumeOpt === 'string' ? resumeOpt : undefined),

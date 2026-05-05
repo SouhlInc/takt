@@ -156,6 +156,8 @@ export interface PieceEngineOptions {
   language?: Language;
   provider?: ProviderType;
   model?: string;
+  /** Codex provider execution must be explicitly allowed by CLI command runs */
+  allowCodex?: boolean;
   /** Resolved provider options */
   providerOptions?: MovementProviderOptions;
   /** Source layer for resolved provider options */

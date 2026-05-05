@@ -23,6 +23,15 @@ export type { RunAgentOptions, StreamCallback } from './types.js';
 
 const log = createLogger('runner');
 
+function assertCodexAllowed(provider: ProviderType, allowCodex: boolean | undefined): void {
+  if (provider !== 'codex' || allowCodex !== false) {
+    return;
+  }
+  throw new Error(
+    'Codex provider execution is disabled for this run. Re-run takt with --allow-codex to allow codex movements/providers.',
+  );
+}
+
 /**
  * Agent execution runner.
  *
@@ -59,6 +68,7 @@ export class AgentRunner {
     if (!resolvedProvider) {
       throw new Error('No provider configured. Set "provider" in ~/.takt/config.yaml');
     }
+    assertCodexAllowed(resolvedProvider, options?.allowCodex);
     return {
       provider: resolvedProvider,
       model: resolved.model,

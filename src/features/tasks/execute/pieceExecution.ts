@@ -173,6 +173,7 @@ export async function executePiece(
       language: options.language,
       provider: options.provider,
       model: options.model,
+      allowCodex: options.allowCodex,
       providerOptions: options.providerOptions,
       providerOptionsSource: options.providerOptionsSource,
       personaProviders: options.personaProviders,

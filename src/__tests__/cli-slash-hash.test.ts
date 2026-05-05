@@ -153,6 +153,27 @@ describe('resolveAgentOverrides', () => {
     expect(resolveAgentOverrides(program)).toEqual({
       provider: 'codex',
       model: 'gpt-5',
+      allowCodex: false,
+    });
+  });
+
+  it('returns allowCodex when --allow-codex is present without provider/model', () => {
+    const program = {
+      opts: () => ({ allowCodex: true }),
+    } as unknown as Command;
+
+    expect(resolveAgentOverrides(program)).toEqual({
+      allowCodex: true,
+    });
+  });
+
+  it('returns allowCodex false when CLI default is present', () => {
+    const program = {
+      opts: () => ({ allowCodex: false }),
+    } as unknown as Command;
+
+    expect(resolveAgentOverrides(program)).toEqual({
+      allowCodex: false,
     });
   });
 });
