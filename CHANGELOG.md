@@ -6,6 +6,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.30.0] - 2026-05-05
+
+SouhlInc fork accumulated changes since 0.29.0.
+
+### Added
+
+- `--skip-checkout` flag for pipeline mode (#1)
+- Slack movement notification support (#2, #3)
+- Long Slack messages: fall back to file upload + plain-text post on upload failure (#5, #8)
+- Codex provider retry pattern expanded (#5)
+- Checkpoint-based resume for interrupted pipeline runs (`--resume`) (#6)
+- `timeout_ms` support for piece movements (#7)
+- Codex provider opt-in (`--allow-codex`) and forced full-access execution (#9)
+
+### Fixed
+
+- Piece name filter bug surfaced by checkpoint resume E2E test (#6)
+
+### Internal
+
+- Bump `@openai/codex-sdk` from `^0.103.0` to `^0.111.0` (#4)
+- Bump `@openai/codex-sdk` from `^0.111.0` to `^0.128.0` to support newer OpenAI models such as `gpt-5.5` (#10)
+
 ## [0.29.0] - 2026-03-04
 
 ### Added
