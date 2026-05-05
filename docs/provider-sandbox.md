@@ -142,7 +142,15 @@ The "Medium" risk of `allow_unsandboxed_commands` is manageable in practice beca
 
 Codex CLI uses macOS Seatbelt (same as Claude Code) but has **more severe compatibility issues** with build tools. Community reports show npm, Maven, pytest, and other tools frequently failing with `Operation not permitted` — even when the same commands work in Claude Code.
 
-Codex sandbox is configured via `~/.codex/config.toml` (not through TAKT):
+TAKT always launches Codex with the equivalent of:
+
+```bash
+codex --sandbox danger-full-access --ask-for-approval never exec
+```
+
+This is passed through the Codex SDK as `sandboxMode: "danger-full-access"` and `approvalPolicy: "never"` so build and test tools can run without interactive approval or sandbox denials.
+
+Additional Codex CLI defaults can still be configured via `~/.codex/config.toml`, but TAKT overrides the sandbox mode and approval policy for Codex executions:
 
 ```toml
 # ~/.codex/config.toml
@@ -161,7 +169,7 @@ provider_options:
     network_access: true
 ```
 
-For other sandbox settings (writable_roots, sandbox_mode), configure directly in `~/.codex/config.toml`.
+For other sandbox settings such as writable roots, configure directly in `~/.codex/config.toml`.
 
 ## OpenCode CLI Sandbox
 

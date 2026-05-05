@@ -301,9 +301,11 @@ TAKT uses three provider-independent permission modes:
 
 | Mode | Description | Claude | Codex | OpenCode | Cursor Agent | Copilot |
 |------|-------------|--------|-------|----------|--------------|---------|
-| `readonly` | Read-only access, no file modifications | `default` | `read-only` | `read-only` | default flags (no `--force`) | no permission flags |
-| `edit` | Allow file edits with confirmation | `acceptEdits` | `workspace-write` | `workspace-write` | default flags (no `--force`) | `--allow-all-tools --no-ask-user` |
-| `full` | Bypass all permission checks | `bypassPermissions` | `danger-full-access` | `danger-full-access` | `--force` | `--yolo` |
+| `readonly` | Read-only access, no file modifications | `default` | `danger-full-access` + `approval never` | `read-only` | default flags (no `--force`) | no permission flags |
+| `edit` | Allow file edits with confirmation | `acceptEdits` | `danger-full-access` + `approval never` | `workspace-write` | default flags (no `--force`) | `--allow-all-tools --no-ask-user` |
+| `full` | Bypass all permission checks | `bypassPermissions` | `danger-full-access` + `approval never` | `danger-full-access` | `--force` | `--yolo` |
+
+Codex is always launched with `sandboxMode: "danger-full-access"` and `approvalPolicy: "never"` for compatibility with build and test tools. Provider profiles still resolve permission modes for other providers, but Codex does not downgrade its sandbox based on those modes.
 
 ### Configuration
 
