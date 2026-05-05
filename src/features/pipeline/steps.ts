@@ -212,11 +212,15 @@ export async function runPiece(
   piece: string,
   task: string,
   execCwd: string,
-  options: Pick<PipelineExecutionOptions, 'provider' | 'model' | 'channelId' | 'threadTs'> & { checkpoint?: Checkpoint },
+  options: Pick<PipelineExecutionOptions, 'provider' | 'model' | 'allowCodex' | 'channelId' | 'threadTs'> & { checkpoint?: Checkpoint },
 ): Promise<boolean> {
   info(`Running piece: ${piece}`);
-  const agentOverrides: TaskExecutionOptions | undefined = (options.provider || options.model)
-    ? { provider: options.provider, model: options.model }
+  const agentOverrides: TaskExecutionOptions | undefined = (options.provider || options.model || options.allowCodex !== undefined)
+    ? {
+        ...(options.provider !== undefined ? { provider: options.provider } : {}),
+        ...(options.model !== undefined ? { model: options.model } : {}),
+        ...(options.allowCodex !== undefined ? { allowCodex: options.allowCodex } : {}),
+      }
     : undefined;
 
   const cp = options.checkpoint;
@@ -226,8 +230,9 @@ export async function runPiece(
     pieceIdentifier: piece,
     projectCwd,
     agentOverrides,
-    channelId: options.channelId,
-    threadTs: options.threadTs,
+    ...(options.allowCodex !== undefined ? { allowCodex: options.allowCodex } : {}),
+    ...(options.channelId !== undefined ? { channelId: options.channelId } : {}),
+    ...(options.threadTs !== undefined ? { threadTs: options.threadTs } : {}),
     // Resume from checkpoint
     ...(cp ? {
       startMovement: cp.nextMovement,

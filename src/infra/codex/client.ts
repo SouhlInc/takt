@@ -7,7 +7,7 @@
 import { Codex, type TurnOptions } from '@openai/codex-sdk';
 import type { AgentResponse } from '../../core/models/index.js';
 import { createLogger, getErrorMessage, createStreamDiagnostics, parseStructuredOutput, type StreamDiagnostics } from '../../shared/utils/index.js';
-import { mapToCodexSandboxMode, type CodexCallOptions } from './types.js';
+import type { CodexCallOptions, CodexSandboxMode } from './types.js';
 import {
   type CodexEvent,
   type CodexItem,
@@ -27,6 +27,8 @@ const CODEX_STREAM_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 const CODEX_STREAM_ABORTED_MESSAGE = 'Codex execution aborted';
 const CODEX_RETRY_MAX_ATTEMPTS = 3;
 const CODEX_RETRY_BASE_DELAY_MS = 250;
+const CODEX_SANDBOX_MODE: CodexSandboxMode = 'danger-full-access';
+const CODEX_APPROVAL_POLICY = 'never' as const;
 const CODEX_RETRYABLE_ERROR_PATTERNS = [
   'stream disconnected before completion',
   'transport error',
@@ -97,13 +99,11 @@ export class CodexClient {
     prompt: string,
     options: CodexCallOptions,
   ): Promise<AgentResponse> {
-    const sandboxMode = options.permissionMode
-      ? mapToCodexSandboxMode(options.permissionMode)
-      : 'workspace-write';
     const threadOptions = {
       ...(options.model ? { model: options.model } : {}),
       workingDirectory: options.cwd,
-      sandboxMode,
+      sandboxMode: CODEX_SANDBOX_MODE,
+      approvalPolicy: CODEX_APPROVAL_POLICY,
       ...(options.networkAccess === undefined ? {} : { networkAccessEnabled: options.networkAccess }),
     };
     let threadId = options.sessionId;

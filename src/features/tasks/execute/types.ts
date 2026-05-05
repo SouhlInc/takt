@@ -51,6 +51,8 @@ export interface PieceExecutionOptions {
   language?: Language;
   provider?: ProviderType;
   model?: string;
+  /** Whether Codex provider execution is explicitly allowed for this command run */
+  allowCodex?: boolean;
   /** Resolved provider options */
   providerOptions?: MovementProviderOptions;
   /** Source layer for resolved provider options */
@@ -86,6 +88,7 @@ export interface PieceExecutionOptions {
 export interface TaskExecutionOptions {
   provider?: ProviderType;
   model?: string;
+  allowCodex?: boolean;
 }
 
 export interface ExecuteTaskOptions {
@@ -99,6 +102,8 @@ export interface ExecuteTaskOptions {
   projectCwd: string;
   /** Agent provider/model overrides */
   agentOverrides?: TaskExecutionOptions;
+  /** Whether Codex provider execution is explicitly allowed for this command run */
+  allowCodex?: boolean;
   /** Override maxMovements from piece config (used when resuming exceeded tasks) */
   maxMovementsOverride?: number;
   /** Override initial iteration count (used when resuming exceeded tasks) */
@@ -154,6 +159,8 @@ export interface PipelineExecutionOptions {
   cwd: string;
   provider?: ProviderType;
   model?: string;
+  /** Whether Codex provider execution is explicitly allowed for this command run */
+  allowCodex?: boolean;
   /** Whether to create worktree for task execution */
   createWorktree?: boolean | undefined;
   /** Slack channel ID for movement notifications */

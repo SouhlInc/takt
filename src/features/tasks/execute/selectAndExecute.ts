@@ -100,6 +100,7 @@ export async function selectAndExecuteTask(
       pieceIdentifier,
       projectCwd: cwd,
       agentOverrides,
+      ...(agentOverrides?.allowCodex !== undefined ? { allowCodex: agentOverrides.allowCodex } : {}),
       interactiveUserInput: options?.interactiveUserInput === true,
       interactiveMetadata: options?.interactiveMetadata,
     });

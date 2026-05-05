@@ -9,7 +9,6 @@ import { writeFileSync, readFileSync, existsSync, readdirSync, statSync } from '
 import { join } from 'node:path';
 import type { PieceState } from '../../models/types.js';
 import type { RunPaths } from '../run/run-paths.js';
-import { buildRunPaths } from '../run/run-paths.js';
 import { createLogger } from '../../../shared/utils/index.js';
 
 const log = createLogger('checkpoint');

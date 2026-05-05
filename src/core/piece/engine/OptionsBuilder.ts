@@ -75,6 +75,7 @@ export class OptionsBuilder {
       abortSignal: this.engineOptions.abortSignal,
       personaPath: step.personaPath,
       provider: this.engineOptions.provider,
+      allowCodex: this.engineOptions.allowCodex,
       model: this.engineOptions.model,
       stepProvider: resolvedProvider,
       stepModel: resolvedModel,

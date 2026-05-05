@@ -194,6 +194,28 @@ describe('executePipeline', () => {
     });
   });
 
+  it('passes allowCodex to task execution when explicitly provided', async () => {
+    mockExecuteTask.mockResolvedValueOnce(true);
+
+    const exitCode = await executePipeline({
+      task: 'Fix the bug',
+      piece: 'default',
+      autoPr: false,
+      cwd: '/tmp/test',
+      allowCodex: true,
+    });
+
+    expect(exitCode).toBe(0);
+    expect(mockExecuteTask).toHaveBeenCalledWith({
+      task: 'Fix the bug',
+      cwd: '/tmp/test',
+      pieceIdentifier: 'default',
+      projectCwd: '/tmp/test',
+      agentOverrides: { allowCodex: true },
+      allowCodex: true,
+    });
+  });
+
   it('should return exit code 5 when PR creation fails', async () => {
     mockExecuteTask.mockResolvedValueOnce(true);
     mockCreatePullRequest.mockReturnValueOnce({ success: false, error: 'PR failed' });

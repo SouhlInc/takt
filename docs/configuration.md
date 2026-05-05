@@ -173,6 +173,8 @@ Project config values override global config when both are set.
 
 TAKT supports five providers. Claude/Codex/OpenCode use API keys, Cursor can use either API key or existing `cursor-agent login` session, and Copilot uses a GitHub token.
 
+Codex execution is opt-in per command. If `provider: codex`, `--provider codex`, a movement-level `provider: codex`, or `persona_providers` resolves a movement to Codex, the command must include `--allow-codex`; otherwise TAKT aborts before calling Codex.
+
 ### Environment Variables (Recommended)
 
 ```bash
@@ -301,9 +303,11 @@ TAKT uses three provider-independent permission modes:
 
 | Mode | Description | Claude | Codex | OpenCode | Cursor Agent | Copilot |
 |------|-------------|--------|-------|----------|--------------|---------|
-| `readonly` | Read-only access, no file modifications | `default` | `read-only` | `read-only` | default flags (no `--force`) | no permission flags |
-| `edit` | Allow file edits with confirmation | `acceptEdits` | `workspace-write` | `workspace-write` | default flags (no `--force`) | `--allow-all-tools --no-ask-user` |
-| `full` | Bypass all permission checks | `bypassPermissions` | `danger-full-access` | `danger-full-access` | `--force` | `--yolo` |
+| `readonly` | Read-only access, no file modifications | `default` | `danger-full-access` + `approval never` | `read-only` | default flags (no `--force`) | no permission flags |
+| `edit` | Allow file edits with confirmation | `acceptEdits` | `danger-full-access` + `approval never` | `workspace-write` | default flags (no `--force`) | `--allow-all-tools --no-ask-user` |
+| `full` | Bypass all permission checks | `bypassPermissions` | `danger-full-access` + `approval never` | `danger-full-access` | `--force` | `--yolo` |
+
+Codex is always launched with `sandboxMode: "danger-full-access"` and `approvalPolicy: "never"` for compatibility with build and test tools. Provider profiles still resolve permission modes for other providers, but Codex does not downgrade its sandbox based on those modes.
 
 ### Configuration
 
@@ -351,6 +355,12 @@ persona_providers:
 Both `provider` and `model` are optional. `model` resolution priority: movement YAML `model` > `persona_providers[persona].model` > global `model`.
 
 This allows mixing providers and models within a single piece. The persona name is matched against the `persona` key in the movement definition.
+
+When any persona route resolves to Codex, run TAKT with `--allow-codex`:
+
+```bash
+takt --pipeline --piece default --task "Implement feature" --allow-codex
+```
 
 ## Piece Categories
 

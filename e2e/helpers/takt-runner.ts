@@ -43,10 +43,20 @@ export function injectProviderArgs(
   args: readonly string[],
   provider: string | undefined,
 ): string[] {
-  if (provider && !args.includes('--provider')) {
-    return ['--provider', provider, ...args];
+  const result = [...args];
+  let effectiveProvider = provider;
+  if (provider && !result.includes('--provider')) {
+    result.unshift('--provider', provider);
+  } else {
+    const providerIndex = result.indexOf('--provider');
+    if (providerIndex >= 0) {
+      effectiveProvider = result[providerIndex + 1];
+    }
   }
-  return [...args];
+  if (effectiveProvider === 'codex' && !result.includes('--allow-codex')) {
+    result.unshift('--allow-codex');
+  }
+  return result;
 }
 
 /**

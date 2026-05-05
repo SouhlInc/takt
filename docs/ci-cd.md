@@ -67,6 +67,7 @@ In pipeline mode, PRs are **not** created unless `--auto-pr` is explicitly speci
 | `--repo <owner/repo>` | Specify repository (for PR creation) |
 | `-q, --quiet` | Minimal output mode: suppress AI output (for CI) |
 | `--provider <name>` | Override agent provider (claude\|codex\|opencode\|cursor\|copilot\|mock) |
+| `--allow-codex` | Permit Codex provider execution for this run; required when any movement or persona route resolves to Codex |
 | `--model <name>` | Override agent model |
 
 ### Command Examples

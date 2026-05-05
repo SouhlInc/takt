@@ -20,6 +20,7 @@ export interface RunAgentOptions {
   sessionId?: string;
   model?: string;
   provider?: 'claude' | 'codex' | 'opencode' | 'cursor' | 'copilot' | 'mock';
+  allowCodex?: boolean;
   stepModel?: string;
   stepProvider?: 'claude' | 'codex' | 'opencode' | 'cursor' | 'copilot' | 'mock';
   personaPath?: string;

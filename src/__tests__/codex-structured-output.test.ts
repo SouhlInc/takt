@@ -36,8 +36,8 @@ vi.mock('@openai/codex-sdk', () => {
           }),
         };
       }
-      async resumeThread() {
-        return this.startThread();
+      async resumeThread(_id: string, options?: Record<string, unknown>) {
+        return this.startThread(options);
       }
     },
   };
@@ -172,6 +172,43 @@ describe('CodexClient — structuredOutput 抽出', () => {
 
     expect(lastThreadOptions).toMatchObject({
       networkAccessEnabled: true,
+    });
+  });
+
+  it('Codex 実行は常に danger-full-access / approval never で起動する', async () => {
+    mockEvents = [
+      { type: 'thread.started', thread_id: 'thread-1' },
+      { type: 'turn.completed', usage: { input_tokens: 0, cached_input_tokens: 0, output_tokens: 0 } },
+    ];
+
+    const client = new CodexClient();
+    await client.call('coder', 'prompt', {
+      cwd: '/tmp',
+      permissionMode: 'readonly',
+    });
+
+    expect(lastThreadOptions).toMatchObject({
+      sandboxMode: 'danger-full-access',
+      approvalPolicy: 'never',
+    });
+  });
+
+  it('Codex resume でも danger-full-access / approval never で起動する', async () => {
+    mockEvents = [
+      { type: 'thread.started', thread_id: 'thread-1' },
+      { type: 'turn.completed', usage: { input_tokens: 0, cached_input_tokens: 0, output_tokens: 0 } },
+    ];
+
+    const client = new CodexClient();
+    await client.call('coder', 'prompt', {
+      cwd: '/tmp',
+      sessionId: 'existing-thread',
+      permissionMode: 'edit',
+    });
+
+    expect(lastThreadOptions).toMatchObject({
+      sandboxMode: 'danger-full-access',
+      approvalPolicy: 'never',
     });
   });
 

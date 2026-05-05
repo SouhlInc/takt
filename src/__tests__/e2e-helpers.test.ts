@@ -10,7 +10,7 @@ import {
 describe('injectProviderArgs', () => {
   it('should prepend --provider when provider is specified', () => {
     const result = injectProviderArgs(['run', '--pipeline'], 'codex');
-    expect(result).toEqual(['--provider', 'codex', 'run', '--pipeline']);
+    expect(result).toEqual(['--allow-codex', '--provider', 'codex', 'run', '--pipeline']);
   });
 
   it('should not prepend --provider when args already contain --provider', () => {
@@ -19,6 +19,14 @@ describe('injectProviderArgs', () => {
       'codex',
     );
     expect(result).toEqual(['--provider', 'claude', 'run', '--pipeline']);
+  });
+
+  it('should not duplicate --allow-codex when provider is codex and flag already exists', () => {
+    const result = injectProviderArgs(
+      ['--allow-codex', '--provider', 'codex', 'run', '--pipeline'],
+      'codex',
+    );
+    expect(result).toEqual(['--allow-codex', '--provider', 'codex', 'run', '--pipeline']);
   });
 
   it('should return a copy of args when provider is undefined', () => {

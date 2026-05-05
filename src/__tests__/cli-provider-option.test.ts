@@ -8,4 +8,11 @@ describe('CLI --provider option', () => {
     expect(providerOption).toBeDefined();
     expect(providerOption?.description).toContain('cursor');
   });
+
+  it('should include --allow-codex option', () => {
+    const allowCodexOption = program.options.find((option) => option.long === '--allow-codex');
+
+    expect(allowCodexOption).toBeDefined();
+    expect(allowCodexOption?.description).toContain('Codex');
+  });
 });
