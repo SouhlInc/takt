@@ -56,6 +56,7 @@ export class OptionsBuilder {
       provider: this.engineOptions.provider,
       model: this.engineOptions.model,
       personaProviders: this.engineOptions.personaProviders,
+      allowCodex: this.engineOptions.allowCodex,
     });
     return {
       provider: resolved.provider ?? this.engineOptions.provider,

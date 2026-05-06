@@ -312,11 +312,12 @@ describe('option resolution order', () => {
     );
   });
 
-  it('should reject codex provider when allowCodex is false', async () => {
+  it('should fall back to claude when codex provider is resolved and allowCodex is false', async () => {
     loadProjectConfigMock.mockReturnValue({
       provider: 'claude',
+      model: 'sonnet',
       personaProviders: {
-        coder: { provider: 'codex' },
+        coder: { provider: 'codex', model: 'codex-model' },
       },
     });
     loadGlobalConfigMock.mockReturnValue({
@@ -326,12 +327,17 @@ describe('option resolution order', () => {
       taskPollIntervalMs: 500,
     });
 
-    await expect(runAgent('coder', 'task', {
+    await runAgent('coder', 'task', {
       cwd: '/repo',
       allowCodex: false,
-    })).rejects.toThrow(/--allow-codex/);
+    });
 
+    expect(getProviderMock).toHaveBeenLastCalledWith('claude');
     expect(getProviderMock).not.toHaveBeenCalledWith('codex');
+    expect(providerCallMock).toHaveBeenLastCalledWith(
+      'task',
+      expect.objectContaining({ model: 'sonnet' }),
+    );
   });
 
   it('should allow codex provider when allowCodex is true', async () => {

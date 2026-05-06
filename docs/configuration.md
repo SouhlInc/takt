@@ -173,7 +173,7 @@ Project config values override global config when both are set.
 
 TAKT supports five providers. Claude/Codex/OpenCode use API keys, Cursor can use either API key or existing `cursor-agent login` session, and Copilot uses a GitHub token.
 
-Codex execution is opt-in per command. If `provider: codex`, `--provider codex`, a movement-level `provider: codex`, or `persona_providers` resolves a movement to Codex, the command must include `--allow-codex`; otherwise TAKT aborts before calling Codex.
+Codex execution is opt-in per command. If `provider: codex`, `--provider codex`, a movement-level `provider: codex`, or `persona_providers` resolves a movement to Codex, TAKT falls back to Claude unless the command includes `--allow-codex`.
 
 ### Environment Variables (Recommended)
 
@@ -356,7 +356,7 @@ Both `provider` and `model` are optional. `model` resolution priority: movement 
 
 This allows mixing providers and models within a single piece. The persona name is matched against the `persona` key in the movement definition.
 
-When any persona route resolves to Codex, run TAKT with `--allow-codex`:
+When any persona route resolves to Codex and you want to execute it with Codex, run TAKT with `--allow-codex`:
 
 ```bash
 takt --pipeline --piece default --task "Implement feature" --allow-codex

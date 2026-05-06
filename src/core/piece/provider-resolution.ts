@@ -7,6 +7,7 @@ export interface MovementProviderModelInput {
   provider?: ProviderType;
   model?: string;
   personaProviders?: Record<string, PersonaProviderEntry>;
+  allowCodex?: boolean;
 }
 
 export interface MovementProviderModelOutput {
@@ -56,6 +57,7 @@ export interface AgentProviderModelInput {
   localModel?: string;
   globalProvider?: ProviderType;
   globalModel?: string;
+  allowCodex?: boolean;
 }
 
 export interface AgentProviderModelOutput {
@@ -80,6 +82,10 @@ function resolveModelFromCandidates(
   return undefined;
 }
 
+function shouldFallbackCodex(provider: ProviderType | undefined, allowCodex: boolean | undefined): boolean {
+  return provider === 'codex' && allowCodex === false;
+}
+
 export function resolveAgentProviderModel(input: AgentProviderModelInput): AgentProviderModelOutput {
   const personaEntry = input.personaProviders?.[input.personaDisplayName ?? ''];
   const provider = resolveProviderModelCandidates([
@@ -97,6 +103,19 @@ export function resolveAgentProviderModel(input: AgentProviderModelInput): Agent
     { model: input.globalModel, provider: input.globalProvider },
   ], provider);
 
+  if (shouldFallbackCodex(provider, input.allowCodex)) {
+    return {
+      provider: 'claude',
+      model: resolveModelFromCandidates([
+        { model: input.cliModel, provider: input.cliProvider },
+        { model: personaEntry?.model, provider: personaEntry?.provider },
+        { model: input.stepModel, provider: input.stepProvider },
+        { model: input.localModel, provider: input.localProvider },
+        { model: input.globalModel, provider: input.globalProvider },
+      ], 'claude'),
+    };
+  }
+
   return { provider, model };
 }
 
@@ -112,5 +131,17 @@ export function resolveMovementProviderModel(input: MovementProviderModelInput):
     { model: input.step.model },
     { model: input.model },
   ]).model;
+
+  if (shouldFallbackCodex(provider, input.allowCodex)) {
+    return {
+      provider: 'claude',
+      model: resolveModelFromCandidates([
+        { model: personaEntry?.model, provider: personaEntry?.provider },
+        { model: input.step.model, provider: input.step.provider },
+        { model: input.model, provider: input.provider },
+      ], 'claude'),
+    };
+  }
+
   return { provider, model };
 }
