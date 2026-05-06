@@ -150,7 +150,7 @@ codex --sandbox danger-full-access --ask-for-approval never exec
 
 This is passed through the Codex SDK as `sandboxMode: "danger-full-access"` and `approvalPolicy: "never"` so build and test tools can run without interactive approval or sandbox denials.
 
-Because this mode is intentionally high-trust, Codex is opt-in per TAKT command. Any run that resolves a provider to Codex must include `--allow-codex`; without it, TAKT aborts before starting the Codex provider.
+Because this mode is intentionally high-trust, Codex is opt-in per TAKT command. Any run that resolves a provider to Codex falls back to Claude unless `--allow-codex` is present.
 
 Additional Codex CLI defaults can still be configured via `~/.codex/config.toml`, but TAKT overrides the sandbox mode and approval policy for Codex executions:
 

@@ -129,6 +129,17 @@ describe('resolveMovementProviderModel', () => {
 
     expect(result.provider).toBe('cursor');
   });
+
+  it('should fall back to claude when movement resolves to codex and allowCodex is false', () => {
+    const result = resolveMovementProviderModel({
+      step: { provider: 'codex', model: 'codex-model', personaDisplayName: 'coder' },
+      provider: 'claude',
+      model: 'sonnet',
+      allowCodex: false,
+    });
+
+    expect(result).toEqual({ provider: 'claude', model: 'sonnet' });
+  });
 });
 
 describe('resolveAgentProviderModel', () => {
@@ -577,5 +588,36 @@ describe('resolveAgentProviderModel', () => {
 
     expect(result.provider).toBe('claude');
     expect(result.model).toBe('persona-model');
+  });
+
+  it('should fall back to claude and ignore codex-scoped model when allowCodex is false', () => {
+    const result = resolveAgentProviderModel({
+      personaProviders: {
+        coder: {
+          provider: 'codex',
+          model: 'codex-model',
+        },
+      },
+      personaDisplayName: 'coder',
+      localProvider: 'claude',
+      localModel: 'sonnet',
+      globalProvider: 'codex',
+      globalModel: 'global-codex-model',
+      allowCodex: false,
+    });
+
+    expect(result).toEqual({ provider: 'claude', model: 'sonnet' });
+  });
+
+  it('should fall back CLI codex override to claude when allowCodex is false', () => {
+    const result = resolveAgentProviderModel({
+      cliProvider: 'codex',
+      cliModel: 'codex-cli-model',
+      localProvider: 'claude',
+      localModel: 'sonnet',
+      allowCodex: false,
+    });
+
+    expect(result).toEqual({ provider: 'claude', model: 'sonnet' });
   });
 });

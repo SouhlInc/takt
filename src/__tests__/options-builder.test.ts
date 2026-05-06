@@ -165,6 +165,20 @@ describe('OptionsBuilder.resolveStepProviderModel', () => {
     expect(result.provider).toBe('opencode');
   });
 
+  it('should fall back codex movement provider to claude when allowCodex is false', () => {
+    const step = createMovement({ provider: 'codex' as 'codex', model: 'codex-model' });
+    const builder = createBuilder(step, {
+      provider: 'claude',
+      model: 'sonnet',
+      allowCodex: false,
+    });
+
+    const result = builder.resolveStepProviderModel(step);
+
+    expect(result.provider).toBe('claude');
+    expect(result.model).toBe('sonnet');
+  });
+
   it('should prioritize persona providers over step-level provider', () => {
     const step = createMovement({ personaDisplayName: 'coder', provider: 'claude' as 'claude' });
     const builder = createBuilder(step, {

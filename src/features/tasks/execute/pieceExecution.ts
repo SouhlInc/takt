@@ -108,9 +108,14 @@ export async function executePiece(
   const shouldNotifyIterationLimit = shouldNotify && nse?.iterationLimit !== false;
   const shouldNotifyPieceComplete = shouldNotify && nse?.pieceComplete !== false;
   const shouldNotifyPieceAbort = shouldNotify && nse?.pieceAbort !== false;
-  const currentProvider = globalConfig.provider;
-  if (!currentProvider) throw new Error('No provider configured. Set "provider" in ~/.takt/config.yaml');
-  const configuredModel = options.model ?? globalConfig.model;
+  const configuredProvider = globalConfig.provider;
+  if (!configuredProvider) throw new Error('No provider configured. Set "provider" in ~/.takt/config.yaml');
+  const codexFallbackActive = options.allowCodex === false
+    && (configuredProvider === 'codex' || options.provider === 'codex');
+  const currentProvider = codexFallbackActive
+    ? 'claude'
+    : configuredProvider;
+  const configuredModel = codexFallbackActive ? undefined : (options.model ?? globalConfig.model);
   const effectivePieceConfig: PieceConfig = {
     ...pieceConfig,
     runtime: resolveRuntimeConfig(globalConfig.runtime, pieceConfig.runtime),

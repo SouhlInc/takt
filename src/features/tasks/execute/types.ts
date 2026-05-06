@@ -51,7 +51,7 @@ export interface PieceExecutionOptions {
   language?: Language;
   provider?: ProviderType;
   model?: string;
-  /** Whether Codex provider execution is explicitly allowed for this command run */
+  /** Whether Codex provider execution is explicitly allowed instead of falling back to Claude */
   allowCodex?: boolean;
   /** Resolved provider options */
   providerOptions?: MovementProviderOptions;
@@ -102,7 +102,7 @@ export interface ExecuteTaskOptions {
   projectCwd: string;
   /** Agent provider/model overrides */
   agentOverrides?: TaskExecutionOptions;
-  /** Whether Codex provider execution is explicitly allowed for this command run */
+  /** Whether Codex provider execution is explicitly allowed instead of falling back to Claude */
   allowCodex?: boolean;
   /** Override maxMovements from piece config (used when resuming exceeded tasks) */
   maxMovementsOverride?: number;
